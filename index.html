@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kizz Hacker System</title>
+
+<style>
+body{
+margin:0;
+background:black;
+color:#00ffcc;
+font-family:monospace;
+overflow:hidden;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:0;
+}
+
+.container{
+position:relative;
+z-index:1;
+text-align:center;
+margin-top:80px;
+}
+
+input,button{
+margin:5px;
+padding:10px;
+background:black;
+border:1px solid #00ffcc;
+color:#00ffcc;
+}
+
+button:hover{
+background:#00ffcc;
+color:black;
+}
+
+.folder,.file{
+border:1px solid #00ffcc;
+margin:10px;
+padding:10px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<audio id="welcomeSound" src="https://www.myinstants.com/media/sounds/hello-there.mp3"></audio>
+<audio id="laughSound" src="https://www.myinstants.com/media/sounds/evil-laugh.mp3"></audio>
+
+<canvas id="matrix"></canvas>
+
+<div class="container" id="app">
+<h2>🔐 LOGIN</h2>
+
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<br>
+<button onclick="login()">LOGIN</button>
+<p id="error"></p>
+</div>
+
+<script>
+// LOGIN
+function login(){
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
+
+if(u==="kizz" && p==="smd"){
+document.getElementById("welcomeSound").play();
+setTimeout(()=>{document.getElementById("laughSound").play();},2000);
+loadApp();
+}else{
+document.getElementById("error").innerText="❌ SALAH";
+}
+}
+
+// DATA
+let folders=JSON.parse(localStorage.getItem("folders"))||{};
+let current=null;
+
+function save(){
+localStorage.setItem("folders",JSON.stringify(folders));
+}
+
+// APP
+function loadApp(){
+document.getElementById("app").innerHTML=`
+<h2>💀 KIZZ SYSTEM</h2>
+
+<input id="fname" placeholder="Nama Folder">
+<br>
+<button onclick="addFolder()">Tambah Folder</button>
+
+<br><br>
+
+<input type="file" id="file" webkitdirectory multiple>
+<br>
+<button onclick="upload()">Upload</button>
+
+<br><br>
+<button onclick="back()">Kembali</button>
+
+<div id="list"></div>
+<div id="viewer"></div>
+`;
+render();
+}
+
+// ADD FOLDER
+function addFolder(){
+let n=document.getElementById("fname").value;
+if(!n)return;
+folders[n]=[];
+save();
+render();
+}
+
+// UPLOAD
+function upload(){
+let files=document.getElementById("file").files;
+
+for(let f of files){
+let p=f.webkitRelativePath.split("/");
+let folder=p[0];
+
+if(!folders[folder]){
+folders[folder]=[];
+}
+
+folders[folder].push({
+name:f.name,
+url:URL.createObjectURL(f),
+type:f.type
+});
+}
+
+save();
+render();
+}
+
+// RENDER
+function render(){
+let list=document.getElementById("list");
+let viewer=document.getElementById("viewer");
+
+list.innerHTML="";
+viewer.innerHTML="";
+
+if(current){
+folders[current].forEach(f=>{
+let d=document.createElement("div");
+d.className="file";
+d.innerText="📄 "+f.name;
+d.onclick=()=>open(f);
+list.appendChild(d);
+});
+}else{
+for(let f in folders){
+let d=document.createElement("div");
+d.className="folder";
+d.innerText="📁 "+f;
+d.onclick=()=>{current=f;render();}
+list.appendChild(d);
+}
+}
+}
+
+// BACK
+function back(){
+current=null;
+render();
+}
+
+// OPEN
+function open(f){
+let v=document.getElementById("viewer");
+v.innerHTML="";
+
+if(f.type.startsWith("video")){
+let vid=document.createElement("video");
+vid.src=f.url;
+vid.controls=true;
+vid.autoplay=true;
+v.appendChild(vid);
+
+}else if(f.type.startsWith("image")){
+let img=document.createElement("img");
+img.src=f.url;
+v.appendChild(img);
+
+}else if(f.type.startsWith("audio")){
+let a=document.createElement("audio");
+a.src=f.url;
+a.controls=true;
+a.autoplay=true;
+v.appendChild(a);
+
+}else{
+v.innerText="File tidak bisa dibuka";
+}
+}
+</script>
+
+</body>
+</html>
