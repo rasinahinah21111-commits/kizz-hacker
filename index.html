@@ -2,14 +2,35 @@
 <html>
 <head>
 <title>Kizz Hacker</title>
+<style>
+body{background:black;color:#00ffcc;font-family:monospace;text-align:center;}
+input,button{margin:5px;padding:10px;background:black;color:#00ffcc;border:1px solid #00ffcc;}
+</style>
 </head>
-<body style="background:black;color:#00ffcc;font-family:monospace;text-align:center;">
 
-<h1>LOGIN KIZZ</h1>
+<body>
 
-<input placeholder="username"><br><br>
-<input type="password" placeholder="password"><br><br>
-<button onclick="alert('Login belum aktif')">LOGIN</button>
+<h2>LOGIN KIZZ</h2>
+
+<input id="user" placeholder="Username"><br>
+<input id="pass" type="password" placeholder="Password"><br>
+
+<button onclick="login()">LOGIN</button>
+
+<p id="error"></p>
+
+<script>
+function login(){
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
+
+if(u==="kizz" && p==="smd"){
+alert("Selamat datang di website Kizz 😈");
+}else{
+document.getElementById("error").innerText="❌ Salah";
+}
+}
+</script>
 
 </body>
 </html>
